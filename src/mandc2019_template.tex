@@ -44,34 +44,30 @@
 %
 % Define title...
 %
-\title{TITLE OF THE PAPER: CENTERED, UPPERCASE, 14 POINT TIMES \\
-  NEW ROMAN, ON SECOND LINE FROM THE TOP MARGIN, NOT \\
-  MORE THAN 3 LINES LONG}
+\title{ MESHED SHUTDOWN DOSE RATE WORKFLOW FOR  \\
+  HIGH ENERGY ACCELERATOR-BASED NUCLEAR SYSTEMS}
 %
 % ...and authors
 %
 \author{%
   % FIRST AUTHORS 
   %
-  \textbf{Author A$^1$, Author B$^2$, and Author C$^3$}\footnote{Footnote, if necessary, in Times New Roman font and font size 10} \\
-  $^1$Name of Institution 1  \\
-  Corresponding Address \\ 
+  \textbf{Nancy Granda Duarte$^1$, Paul Wilson$^2$} \\%\footnote{Footnote, if necessary, in Times New Roman font and font size 10} \\
+  $^1$University of Wisconsin - Madison  \\
+  1500 Engineering Drive \\ 
 \\
-  $^2$Name of Institution 2  \\ 
-    Corresponding Address \\ 
+  $^2$University of Wisconsin - Madison  \\ 
+    Engineering Drive \\ 
 \\
-  $^3$Name of Institution 3  \\
-     Corresponding Address \\
-     \\
-  \url{AuthorA@email}, \url{AuthorB@email}, \url{AuthorC@email}
+  \url{grandaduarte@wisc.edu}, \url{paul.wilson@wisc.edu}
 }
 %
 % Insert authors' names and short version of title in lines below
 %
 \newcommand{\authorHead}      % Author's names here use et al. if more than 3
-           {First author}  
+           {Nancy Granda Duarte}  
 \newcommand{\shortTitle}      % Short title here (Shorten to fit all into a single line)
-           {Paper Title }  
+           {Meshed Shutdown Dose Rate Workflow for High Energy Nuclear Systems}  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %   BEGIN DOCUMENT
@@ -88,25 +84,33 @@
   spacing. The abstract is a very brief summary highlighting main 
   accomplishments, what is new, and how it relates to the state-of-the-art.
 \end{abstract}
-\keywords{list of three to five key words}
+\keywords{accelerator, .... (three to five words)}
 
 \section{INTRODUCTION} 
-Paper starts here with two blank lines before first section title.  Use 
-8.5$\times$11 paper size, with 1'' margins on all sides.  Use one blank line 
-before and after each subsequent section’s title.  Most of the formatting is globally
-set by the specifications given in the \emph{mandc2019.cls} file.  
-First-level section titles must be all uppercase and centered, and must 
-be numbered in Arabic numerals as shown above.  Unlike the Word template, the body text and section titles for this \LaTeX\ template use 
-11-point font.  We have found that the 11-point font in \LaTeX\ more closely 
-matched the 12-point font in Word.  Introduce the topic of your work 
-in this section.
+In high energy nuclear systems, high energy neutron irradiation of the system 
+components results in the production of radioactive materials which decay to 
+produce photons. These photons persist even after shutdown of the 
+system. The biological dose rate from these photons must be accurately 
+quatified in order to develop an appropiate procedure for maintance and operation. 
+Furthermore when components reach their end of life, they must be 
+replaced and supporting documentation is needed in order to store the 
+component safely. A radionuclide inventory and dose rate analysis is needed. 
 
-The first line of a paragraph is not indented; rather add one blank line between 
-paragraphs.  This is done automatically. If you are a \LaTeX\ expert you 
-can likely define the established format characteristics in a more elegant 
-manner than what is done here.  This is perfectly fine, so long as the 
-established paper format/appearance is maintained.  This template is merely 
-to assist with maintaining uniformity in paper appearance.
+The Spallation Neutron Source (SNS) facility requires such quantities. 
+The current workflow  used at SNS to calculate the dose rate is Rigorous 
+Two-Step method facility requires such quantities. 
+The current workflow  used at SNS to calculate the dose rate is Rigorous 
+Two-Step (R2S) method. The R2S method entails two separate transport steps 
+coupled by an activation calculation. The workflow starts with a neutron 
+transport, then an activation calculation is done using results 
+from the neutron transport to calculate the  
+photon source to be used in a photon transport calculation. 
+
+This work has been done at SNS using geometry cells. 
+This implementations supports a workflow involving CAD geomtries  and 
+superimposed cartesian meshes. 
+The workflow utilizes CAD geometries for the neutron and photon transport. 
+
 
 There are four types of reference styles: journal paper\cite{journal}, 
 proceedings paper\cite{proc_paper}, book\cite{book}, and website\cite{website}.
@@ -118,22 +122,74 @@ appearance as [5-7].
 The page limit for M\&C 2019 papers is 12 pages. It is strongly recommended that 
 the length of any final paper should not exceed 12 pages.
 
-\section{SECOND OR SUBSEQUENT MAJOR HEADING} 
+\section{IMPLEMENTATION} 
 \label{sec:first}
 
-This is Section~\ref{sec:first}. It is followed by a subsection, that is, 
-\ref{sec:second}. The style for subsection titles and all text in this template is defined 
-in the \emph{mandc2019.cls} file.  Make sure to avoid widow/orphan lines.
+\subsection{Overview of the Original Workflow}
 
-\subsection{Subsection Title: First Character of Each Non-trivial Word is Uppercase} 
-\label{sec:second}
+First a native MCNPX geometry representation is created, materials are assigned, 
+and a neutron source is defined to use in the neutron trasnport. Tallies are used 
+to collect the flux and the radioisotopic production and destruction rates on a 
+geometric cell. The flux is collected to energies up to 25 MeV. The 
+radionuclide production and destruction rates are collected in order to mediate 
+the lack of nuclear data above the 150 MeV range in some cases. 
+The flux and radionuclide information are read from the mcnp output file by 
+the activation script. The activation script writes a CINDER90 input file 
+and run CINDER. The CINDER output is read by a photon source script to create 
+a photon source SDEF card. The photon source is used in a photon transport 
+calculation to obtain the photon flux and the dose  rate. in a per cell base. 
 
-Double-space before and after secondary titles is automatic.  Figures and 
-tables should appear as close as possible to where they are first
-cited, e.g., Fig.~\ref{fig:amdahl}, in the text.  Figures are numbered in Arabic 
-numerals, with the caption centered below the figure, in \textbf{boldface}. For a better 
-arrangement it is strongly recommended that all the figures must be placed in the``Figures'' 
-folder. Triple-space before the figure, and after the figure caption.
+\subsection{Overview of the Proposed Workflow}
+
+Start with a CAD representation of the problem geometry that has material 
+assigned to it. DAG-MCP6 - version of MCNP5 integrated with the Direct Accelerated 
+Geometry for Monte Carlo (DAGMC) toolkit - is used to perform a 
+neutron transport calculation directly on the CAD geometry. 
+Energy discretized neutron fluxes are tallied on superimposed cartesian mesh 
+as well as the radionuclide production and destruction rate are tallied 
+on a mesh. 
+The meshed flux and radionuclide information is then read by a modified 
+activation script which writes a CINDER90 input file and runs CINDER90. 
+Another script is used to read CINDER output and create a meshed photon source. 
+An ad-hoc subroutine allows DAG-MCNP to use the meshed photon source instead 
+of a source definition (SDEF) card. Finally a flux tally can be used 
+with flux-to-dose conversion factors to estimate the biological dose rate. 
+
+\subsection{Radionuclide tally }
+
+The original radionuclide tally was created as a patch for MCNPX to 
+collect radionuclide information directly in the MCNP output file 
+instead of having to post-process a htape file. 
+The original tally makes use of the physics model within MCNP 
+in order to obtain results and they were recorded in a each 
+cell requested in the input. 
+Modification were made to the patch in order to collect information in 
+a superimposed mesh provided in the RNUCS card. 
+
+\subsection{Activation script}
+The original activation script takes in the flux and radionuclide per cell and 
+writes an input script and run an activation calculation. 
+This script is modified to be able to take in flux and radionuclide information 
+on a mesh and run an activation calculation. 
+
+\subsection{Photon Source Sampling and script}
+The proposed workflow produces a Cartesian mesh-based photon source therefore 
+the workflow employs an ad-hoc MCNP source subroutine in order to provide a
+way for sampling from the mesh-based source. 
+
+
+\SECTION{Progress and Preliminary Results}
+
+\subsection{Benchmark}
+The Spallation neutron source seen Figure ... was used to test the original 
+workflow and the a  workflow with the use of the DAGMC toolkit. 
+
+The photon release rate was recorded for an original run with MCNPX and with 
+DAG-MCNP6. 
+
+
+
+
 
 \begin{figure}[!htb]
   \centering
@@ -158,9 +214,6 @@ sequentially numbered to the flush right of the formula.
   \mathrm{Speedup}=\frac{1}{\frac{f}{p}+(1-f)}
 \end{equation}
 
-The continuation of a paragraph after an equation should not be indented.  
-All paragraphs, as well as section or subsection headings, are separated by 
-just one single empty line.
 
 \subsubsection{Sub-subsection level and lower: only first character uppercase}
 
@@ -193,7 +246,7 @@ If variables are extensively used in the text, a Nomenclature section would be h
 
 \section*{ACKNOWLEDGEMENTS}
 
-Acknowledge the help of colleagues and sources of funding, as appropriate.
+This work was made possible by the 
 
 \textbf{As an example:} The format for this template was adapted from the \LaTeX template for the PHYSOR-2018 conference posted and available on the Internet and 
 most of the \LaTeX\ format definitions contained in this were already defined. The 
